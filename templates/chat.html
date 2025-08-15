@@ -18,12 +18,27 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
         }
 
         .chat-container {
-            width: 90%;
-            max-width: 800px;
-            height: 90vh;
+            width: 95%;
+            max-width: 1200px;
+            height: 95vh;
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
@@ -35,31 +50,73 @@
         .chat-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 20px;
+            padding: 30px 30px 35px 30px;
             text-align: center;
             position: relative;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 5;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .chat-header h1 {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 600;
-            margin-bottom: 5px;
+            margin: 0 0 10px 0;
         }
 
         .chat-header p {
-            font-size: 14px;
+            font-size: 16px;
             opacity: 0.9;
+            margin: 0 0 20px 0;
+        }
+
+        .session-controls {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            display: flex;
+            gap: 12px;
+            z-index: 10;
+        }
+
+        .session-btn {
+            padding: 10px 18px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .session-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .session-info {
+            font-size: 13px;
+            opacity: 0.9;
+            margin: 15px 0 0 0;
+            font-weight: 500;
         }
 
         .status-indicator {
             position: absolute;
             top: 20px;
-            right: 20px;
+            right: 30px;
             width: 12px;
             height: 12px;
             border-radius: 50%;
             background: #4CAF50;
             animation: pulse 2s infinite;
+            z-index: 10;
         }
 
         @keyframes pulse {
@@ -68,17 +125,16 @@
             100% { opacity: 1; }
         }
 
-        .chat-messages {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            background: #f8f9fa;
-        }
-
         .message {
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             display: flex;
             align-items: flex-start;
+            padding: 0 15px;
+            position: relative;
+        }
+
+        .message:last-child {
+            margin-bottom: 20px;
         }
 
         .message.user {
@@ -90,11 +146,13 @@
         }
 
         .message-content {
-            max-width: 70%;
-            padding: 15px 20px;
+            max-width: 60%;
+            min-width: 300px;
+            padding: 18px 24px;
             border-radius: 20px;
             word-wrap: break-word;
-            line-height: 1.5;
+            line-height: 1.6;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .message.user .message-content {
@@ -119,13 +177,15 @@
 
         .typing-indicator {
             display: none;
-            padding: 15px 20px;
+            padding: 18px 24px;
             background: white;
             border: 1px solid #e0e0e0;
             border-radius: 20px;
             border-bottom-left-radius: 5px;
-            max-width: 70%;
-            margin-bottom: 20px;
+            max-width: 60%;
+            min-width: 300px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .typing-dots {
@@ -149,25 +209,60 @@
             40% { transform: scale(1); opacity: 1; }
         }
 
+        .chat-messages {
+            flex: 1;
+            padding: 40px 40px 30px 40px;
+            overflow-y: auto;
+            background: 
+                linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.5) 50%, transparent 100%),
+                #f8f9fa;
+            margin-top: 0;
+            position: relative;
+        }
+
+        .chat-messages::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.1) 50%, transparent 100%);
+        }
+
         .chat-input-container {
-            padding: 20px;
+            padding: 30px 40px;
             background: white;
-            border-top: 1px solid #e0e0e0;
+            border-top: 2px solid #e0e0e0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .chat-input-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba(102, 126, 234, 0.3) 50%, transparent 100%);
         }
 
         .chat-input-form {
             display: flex;
-            gap: 10px;
+            gap: 15px;
+            align-items: center;
         }
 
         .chat-input {
             flex: 1;
-            padding: 15px 20px;
+            padding: 18px 25px;
             border: 2px solid #e0e0e0;
-            border-radius: 25px;
+            border-radius: 30px;
             font-size: 16px;
             outline: none;
-            transition: border-color 0.3s ease;
+            transition: all 0.3s ease;
+            min-height: 20px;
         }
 
         .chat-input:focus {
@@ -175,33 +270,40 @@
         }
 
         .send-button {
-            padding: 15px 25px;
+            padding: 18px 30px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 25px;
+            border-radius: 30px;
             font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s ease;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            min-width: 100px;
         }
 
         .send-button:hover {
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         .send-button:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
         }
 
         .error-message {
             background: #ffebee;
             color: #c62828;
-            padding: 10px 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
             border-left: 4px solid #c62828;
+            max-width: 80%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .response-time {
@@ -225,14 +327,91 @@
                 font-size: 20px;
             }
         }
+
+        @media (max-width: 1200px) {
+            .chat-container {
+                width: 98%;
+                max-width: 1000px;
+            }
+            
+            .chat-messages {
+                padding: 25px 30px;
+            }
+            
+            .chat-input-container {
+                padding: 20px 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .chat-container {
+                width: 98%;
+                height: 98vh;
+                border-radius: 15px;
+            }
+            
+            .chat-header {
+                padding: 20px 25px;
+                min-height: 100px;
+            }
+            
+            .chat-header h1 {
+                font-size: 22px;
+            }
+            
+            .chat-header p {
+                font-size: 14px;
+            }
+            
+            .session-controls {
+                top: 20px;
+                left: 25px;
+                gap: 8px;
+            }
+            
+            .session-btn {
+                padding: 8px 14px;
+                font-size: 12px;
+            }
+            
+            .message-content {
+                max-width: 80%;
+                min-width: 250px;
+                padding: 15px 20px;
+            }
+            
+            .chat-messages {
+                padding: 20px 25px;
+            }
+            
+            .chat-input-container {
+                padding: 20px 25px;
+            }
+            
+            .chat-input {
+                padding: 15px 20px;
+                font-size: 15px;
+            }
+            
+            .send-button {
+                padding: 15px 25px;
+                font-size: 15px;
+                min-width: 80px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="chat-container">
         <div class="chat-header">
+            <div class="session-controls">
+                <button class="session-btn" id="newSessionBtn" title="Start new conversation">🆕 New Session</button>
+                <button class="session-btn" id="showHistoryBtn" title="Show session info">📊 Session Info</button>
+            </div>
             <div class="status-indicator" id="statusIndicator"></div>
             <h1>🤖 LangGraph Chatbot</h1>
             <p>Powered by OpenAI GPT-4 with Web Search & LangSmith Monitoring</p>
+            <div class="session-info" id="sessionInfo">Session: Initializing...</div>
         </div>
         
         <div class="chat-messages" id="chatMessages">
@@ -274,9 +453,105 @@
         const chatForm = document.getElementById('chatForm');
         const typingIndicator = document.getElementById('typingIndicator');
         const statusIndicator = document.getElementById('statusIndicator');
+        const newSessionBtn = document.getElementById('newSessionBtn');
+        const showHistoryBtn = document.getElementById('showHistoryBtn');
+        const sessionInfo = document.getElementById('sessionInfo');
 
         // Check health status on load
         checkHealth();
+
+        // Initialize session
+        let currentSessionId = null;
+        initializeSession();
+
+        function initializeSession() {
+            // Don't try to load history initially since we don't have a session yet
+            // The first message will create a session
+            sessionInfo.textContent = 'Session: Ready for first message';
+        }
+
+        async function loadChatHistory() {
+            try {
+                // If we have a current session, try to load its history
+                if (currentSessionId) {
+                    const headers = { 'X-Session-ID': currentSessionId };
+                    const response = await fetch('/api/chat_history', { headers });
+                    const data = await response.json();
+                    
+                    if (data.session_id && data.session_id !== 'no_session') {
+                        // Display existing messages
+                        if (data.messages && data.messages.length > 0) {
+                            chatMessages.innerHTML = ''; // Clear welcome message
+                            data.messages.forEach(msg => {
+                                const isUser = msg.role === 'user';
+                                const content = isUser ? msg.content : msg.content.replace('🤖 Assistant: ', '');
+                                addMessage(content, isUser, msg.timestamp);
+                            });
+                        }
+                    }
+                } else {
+                    // No current session, this will be created on first message
+                    sessionInfo.textContent = 'Session: Ready for first message';
+                }
+            } catch (error) {
+                console.error('Failed to load chat history:', error);
+                sessionInfo.textContent = 'Session: Error loading';
+            }
+        }
+
+        async function startNewSession() {
+            try {
+                const response = await fetch('/api/new_session', {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    currentSessionId = data.session_id;
+                    sessionInfo.textContent = `Session: ${currentSessionId.substring(0, 8)}...`;
+                    
+                    // Clear chat messages and show welcome
+                    chatMessages.innerHTML = `
+                        <div class="message assistant">
+                            <div class="message-content">
+                                Hello! I'm your AI assistant powered by LangGraph. I can help you with questions, provide current information through web search, and remember our conversation context. How can I assist you today?
+                            </div>
+                        </div>
+                    `;
+                    
+                    showNotification('New session started!');
+                } else {
+                    showError(data.error || 'Failed to start new session');
+                }
+            } catch (error) {
+                showError('Failed to start new session');
+                console.error('Error:', error);
+            }
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'error-message';
+            notification.style.background = '#e8f5e8';
+            notification.style.color = '#2e7d32';
+            notification.style.borderLeftColor = '#2e7d32';
+            notification.textContent = message;
+            
+            chatMessages.appendChild(notification);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        function showSessionInfo() {
+            const messageCount = document.querySelectorAll('.message').length - 1; // Exclude welcome message
+            const sessionInfoText = `Session ID: ${currentSessionId || 'None'}\nMessages in this session: ${messageCount}`;
+            
+            alert(sessionInfoText);
+        }
 
         function checkHealth() {
             fetch('/api/health')
@@ -346,11 +621,21 @@
                 showTyping();
                 sendButton.disabled = true;
                 
+                // Prepare headers with session ID if available
+                const headers = {
+                    'Content-Type': 'application/json',
+                };
+                
+                if (currentSessionId) {
+                    headers['X-Session-ID'] = currentSessionId;
+                }
+                
+                console.log('Sending message with session ID:', currentSessionId);
+                console.log('Headers:', headers);
+                
                 const response = await fetch('/api/chat', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: headers,
                     body: JSON.stringify({ message: message })
                 });
                 
@@ -359,6 +644,13 @@
                 hideTyping();
                 
                 if (response.ok) {
+                    // Update session ID if this is a new session
+                    if (data.session_id && data.session_id !== currentSessionId) {
+                        currentSessionId = data.session_id;
+                        sessionInfo.textContent = `Session: ${currentSessionId.substring(0, 8)}...`;
+                        console.log('New session created:', currentSessionId);
+                    }
+                    
                     addMessage(data.response, false, data.timestamp, data.response_time);
                 } else {
                     showError(data.error || 'Failed to send message');
@@ -400,6 +692,25 @@
 
         // Auto-focus input on load
         messageInput.focus();
+
+        // Session management event listeners
+        newSessionBtn.addEventListener('click', startNewSession);
+        showHistoryBtn.addEventListener('click', showSessionInfo);
+
+        // Debug function for testing memory (available in browser console)
+        window.testMemory = async function() {
+            console.log('Testing memory functionality...');
+            console.log('Current session ID:', currentSessionId);
+            
+            if (!currentSessionId) {
+                console.log('No current session, sending first message...');
+                await sendMessage('Hello, my name is TestUser');
+                return;
+            }
+            
+            console.log('Sending follow-up message...');
+            await sendMessage('What is my name?');
+        };
     </script>
 </body>
 </html>
