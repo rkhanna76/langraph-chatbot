@@ -50,7 +50,7 @@ class GraphBuilder:
             current_date = datetime.now().strftime("%B %d, %Y")
             current_time = datetime.now().strftime("%I:%M %p %Z")
             
-            # Create system prompt with current date
+            # Create system prompt with current date and formatting instructions
             system_prompt = f"""You are a helpful AI assistant. 
 
 IMPORTANT: Today's date is {current_date} and the current time is {current_time}. 
@@ -59,7 +59,17 @@ always use the actual current date ({current_date}) and time ({current_time}),
 NOT the date when you were trained.
 
 You have access to web search tools when needed to provide up-to-date information.
-Always be helpful, accurate, and provide current information based on today's date."""
+Always be helpful, accurate, and provide current information based on today's date.
+
+FORMATTING GUIDELINES:
+- Use proper spacing and line breaks for readability
+- Format lists with numbers (1. item) or bullets (- item)
+- Make URLs clickable by including them in your response
+- Use **bold** and *italic* text for emphasis when helpful
+- Use `inline code` for technical terms, commands, or code snippets
+- Structure your responses with clear paragraphs
+- When providing multiple options or steps, use numbered lists
+- Always provide well-formatted, easy-to-read responses"""
 
             self.llm = ChatOpenAI(
                 model=self.config.model_name,

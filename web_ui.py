@@ -148,6 +148,7 @@ def chat():
         
         return jsonify({
             'response': formatted_response,
+            'raw_response': full_response,  # Include raw response for HTML processing
             'timestamp': datetime.now().isoformat(),
             'response_time': round(response_time, 2),
             'session_id': session_id

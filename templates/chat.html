@@ -168,6 +168,97 @@
             border-bottom-left-radius: 5px;
         }
 
+        /* HTML formatting styles */
+        .message.assistant .message-content p {
+            margin: 0 0 12px 0;
+            line-height: 1.6;
+        }
+
+        .message.assistant .message-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .response-link {
+            color: #667eea;
+            text-decoration: none;
+            border-bottom: 1px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .response-link:hover {
+            color: #764ba2;
+            border-bottom-color: #764ba2;
+            background-color: rgba(102, 126, 234, 0.1);
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        .numbered-item {
+            display: flex;
+            margin: 8px 0;
+            align-items: flex-start;
+        }
+
+        .numbered-item .number {
+            font-weight: 600;
+            color: #667eea;
+            margin-right: 12px;
+            min-width: 30px;
+        }
+
+        .numbered-item .item-text {
+            flex: 1;
+            line-height: 1.5;
+        }
+
+        .bullet-item {
+            margin: 8px 0;
+            padding-left: 20px;
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .bullet-item::before {
+            content: '•';
+            color: #667eea;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 12px 0;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            overflow-x: auto;
+            color: #495057;
+        }
+
+        .inline-code {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 13px;
+            color: #495057;
+        }
+
+        .message.assistant .message-content strong {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .message.assistant .message-content em {
+            font-style: italic;
+            color: #6c757d;
+        }
+
         .message-time {
             font-size: 12px;
             color: #999;
@@ -478,16 +569,14 @@
                     const response = await fetch('/api/chat_history', { headers });
                     const data = await response.json();
                     
-                    if (data.session_id && data.session_id !== 'no_session') {
-                        // Display existing messages
-                        if (data.messages && data.messages.length > 0) {
-                            chatMessages.innerHTML = ''; // Clear welcome message
-                            data.messages.forEach(msg => {
-                                const isUser = msg.role === 'user';
-                                const content = isUser ? msg.content : msg.content.replace('🤖 Assistant: ', '');
-                                addMessage(content, isUser, msg.timestamp);
-                            });
-                        }
+                    // Display existing messages
+                    if (data.messages && data.messages.length > 0) {
+                        chatMessages.innerHTML = ''; // Clear welcome message
+                        data.messages.forEach(msg => {
+                            const isUser = msg.role === 'user';
+                            const content = isUser ? msg.content : msg.content.replace('🤖 Assistant: ', '');
+                            addMessage(content, isUser, msg.timestamp, null, isUser ? null : content);
+                        });
                     }
                 } else {
                     // No current session, this will be created on first message
@@ -569,13 +658,26 @@
                 });
         }
 
-        function addMessage(content, isUser = false, timestamp = null, responseTime = null) {
+        function addMessage(content, isUser = false, timestamp = null, responseTime = null, rawContent = null) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isUser ? 'user' : 'assistant'}`;
             
             const messageContent = document.createElement('div');
             messageContent.className = 'message-content';
-            messageContent.textContent = content;
+            
+            if (isUser) {
+                // User messages remain as plain text
+                messageContent.textContent = content;
+            } else {
+                // Assistant messages can contain HTML formatting
+                if (rawContent && rawContent !== content) {
+                    // Use raw content for HTML processing
+                    messageContent.innerHTML = processResponseHTML(rawContent);
+                } else {
+                    // Fallback to processed content
+                    messageContent.innerHTML = processResponseHTML(content);
+                }
+            }
             
             messageDiv.appendChild(messageContent);
             
@@ -651,7 +753,7 @@
                         console.log('New session created:', currentSessionId);
                     }
                     
-                    addMessage(data.response, false, data.timestamp, data.response_time);
+                    addMessage(data.response, false, data.timestamp, data.response_time, data.raw_response);
                 } else {
                     showError(data.error || 'Failed to send message');
                 }
@@ -696,6 +798,51 @@
         // Session management event listeners
         newSessionBtn.addEventListener('click', startNewSession);
         showHistoryBtn.addEventListener('click', showSessionInfo);
+
+        // Function to process and format chatbot responses
+        function processResponseHTML(content) {
+            if (!content) return '';
+            
+            let processed = content;
+            
+            // Remove the "🤖 Assistant:" prefix if present
+            processed = processed.replace(/^🤖\s*Assistant:\s*/, '');
+            
+            // Convert markdown-style links to HTML links
+            processed = processed.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="response-link">$1</a>');
+            
+            // Convert plain URLs to clickable links
+            processed = processed.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="response-link">$1</a>');
+            
+            // Convert numbered lists (1. item)
+            processed = processed.replace(/^(\d+\.\s+)(.+)$/gm, '<div class="numbered-item"><span class="number">$1</span><span class="item-text">$2</span></div>');
+            
+            // Convert bullet points (- item or * item)
+            processed = processed.replace(/^[\s]*[-*]\s+(.+)$/gm, '<div class="bullet-item">• $1</div>');
+            
+            // Convert bold text (**text** or __text__)
+            processed = processed.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+            processed = processed.replace(/__([^_]+)__/g, '<strong>$1</strong>');
+            
+            // Convert italic text (*text* or _text_)
+            processed = processed.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+            processed = processed.replace(/_([^_]+)_/g, '<em>$1</em>');
+            
+            // Convert code blocks (```code```)
+            processed = processed.replace(/```([^`]+)```/g, '<pre class="code-block">$1</pre>');
+            
+            // Convert inline code (`code`)
+            processed = processed.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
+            
+            // Convert line breaks to proper spacing
+            processed = processed.replace(/\n\n/g, '</p><p>');
+            processed = processed.replace(/\n/g, '<br>');
+            
+            // Wrap in paragraphs for better structure
+            processed = `<p>${processed}</p>`;
+            
+            return processed;
+        }
 
         // Debug function for testing memory (available in browser console)
         window.testMemory = async function() {
