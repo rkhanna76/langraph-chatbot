@@ -17,7 +17,7 @@ class ChatbotConfig:
     langsmith_api_key: str = None
     
     # Model Configuration
-    model_name: str = "openai:gpt-4.1"
+    model_name: str = "gpt-4"
     max_search_results: int = 3
     
     # Visualization Settings

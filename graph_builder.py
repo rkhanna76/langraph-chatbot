@@ -8,6 +8,8 @@ from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode
 from langchain_tavily import TavilySearch
 from langchain.chat_models import init_chat_model
+from langgraph.checkpoint.memory import InMemorySaver
+from langchain_openai import ChatOpenAI
 
 from config import ChatbotConfig
 from state import State
@@ -40,9 +42,36 @@ class GraphBuilder:
         return self.graph
     
     def _init_llm(self):
-        """Initialize the language model"""
+        """Initialize the LLM with system prompt"""
         try:
-            self.llm = init_chat_model(self.config.model_name)
+            from datetime import datetime
+            
+            # Get current date and time
+            current_date = datetime.now().strftime("%B %d, %Y")
+            current_time = datetime.now().strftime("%I:%M %p %Z")
+            
+            # Create system prompt with current date
+            system_prompt = f"""You are a helpful AI assistant. 
+
+IMPORTANT: Today's date is {current_date} and the current time is {current_time}. 
+When users ask about "current", "today", "now", or similar time-related terms, 
+always use the actual current date ({current_date}) and time ({current_time}), 
+NOT the date when you were trained.
+
+You have access to web search tools when needed to provide up-to-date information.
+Always be helpful, accurate, and provide current information based on today's date."""
+
+            self.llm = ChatOpenAI(
+                model=self.config.model_name,
+                temperature=0.7,  # Default temperature
+                max_tokens=1000   # Default max tokens
+            )
+            
+            # Store the system prompt for use in conversations
+            self.system_prompt = system_prompt
+            
+            return self.llm
+            
         except Exception as e:
             raise RuntimeError(f"Failed to initialize LLM: {e}")
     
@@ -100,10 +129,13 @@ class GraphBuilder:
         
         self._graph_builder = graph_builder
     
-    def _compile_graph(self) -> StateGraph:
+    def _compile_graph(self):
         """Compile the graph"""
         try:
-            return self._graph_builder.compile()
+            memory = InMemorySaver()
+            return self._graph_builder.compile(
+                checkpointer=memory
+            )
         except Exception as e:
             raise RuntimeError(f"Failed to compile graph: {e}")
     
@@ -118,14 +150,29 @@ class GraphBuilder:
                 metadata={"node_type": "chatbot", "timestamp": "start"}
             )
             
+            # Add system message with current date if not already present
+            from langchain_core.messages import SystemMessage
+            messages = state["messages"]
+            
+            # Check if system message is already present
+            has_system_message = any(
+                hasattr(msg, 'type') and msg.type == 'system' 
+                for msg in messages
+            )
+            
+            if not has_system_message and hasattr(self, 'system_prompt'):
+                # Add system message at the beginning
+                system_message = SystemMessage(content=self.system_prompt)
+                messages = [system_message] + messages
+            
             # Process the message
             if self.tools:
                 # Bind tools to the LLM so it can decide when to use them
                 llm_with_tools = self.llm.bind_tools(self.tools)
-                response = llm_with_tools.invoke(state["messages"])
+                response = llm_with_tools.invoke(messages)
             else:
                 # Use LLM without tools
-                response = self.llm.invoke(state["messages"])
+                response = self.llm.invoke(messages)
             
             result = {"messages": [response]}
             

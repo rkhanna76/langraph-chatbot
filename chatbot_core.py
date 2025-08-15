@@ -122,21 +122,24 @@ class LangGraphChatbot:
             start_time = time.time()
             self.turn_count += 1
             
-            # Log conversation turn to LangSmith
             monitor = self.graph_builder.get_monitor()
             monitor.log_conversation_turn(
                 user_input=user_input,
-                assistant_response="",  # Will be updated after response
+                assistant_response="",
                 session_id=self.current_session_id,
                 turn_number=self.turn_count
             )
             
-            # Process the input through the graph
             assistant_response = ""
-            for event in self.graph.stream({"messages": [{"role": "user", "content": user_input}]}):
+            # Use thread configuration for checkpointer
+            config = {"configurable": {"thread_id": self.current_session_id}}
+            
+            for event in self.graph.stream(
+                {"messages": [{"role": "user", "content": user_input}]},
+                config=config
+            ):
                 for value in event.values():
                     if "messages" in value and value["messages"]:
-                        # Get the last message from the response
                         messages = value["messages"]
                         if messages and hasattr(messages[-1], 'content'):
                             response = messages[-1]
@@ -147,11 +150,9 @@ class LangGraphChatbot:
                             assistant_response = response['content']
                             print("🤖 Assistant:", response['content'])
                     
-                    # Log the response
                     response_time = time.time() - start_time
                     self.logger.log_api_call("OpenAI", True, response_time)
             
-            # Update the conversation turn with the actual response
             if assistant_response:
                 monitor.log_conversation_turn(
                     user_input=user_input,
