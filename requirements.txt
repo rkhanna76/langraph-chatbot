@@ -7,3 +7,4 @@ langchain_tavily>=0.1.0
 tavily-python>=0.3.0
 langsmith>=0.1.0
 pathlib2>=2.3.7; python_version < "3.4"
+flask>=2.3.0

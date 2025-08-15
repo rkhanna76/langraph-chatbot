@@ -1,313 +1,284 @@
 # LangGraph Chatbot
 
-A modular, production-ready chatbot implementation using LangGraph and OpenAI GPT-4 with web search capabilities and comprehensive monitoring.
+A sophisticated chatbot built with LangGraph, featuring conditional flow monitoring, web search capabilities, LangSmith integration, and both command-line and web interfaces.
 
-## ✨ Features
+## 🌟 Features
 
-- **🏗️ Modular Architecture**: Clean separation of concerns with dedicated modules
-- **🔧 LangGraph Integration**: Uses LangGraph for conversation flow management
-- **🤖 OpenAI GPT-4**: Powered by OpenAI's latest language model
-- **🔍 Web Search**: Integrated Tavily search for real-time information
-- **📊 Graph Visualization**: Generates visual representations in multiple formats
-- **💬 Interactive Mode**: Rich command-line interface with emojis and formatting
-- **📝 Comprehensive Logging**: Built-in logging system for debugging and monitoring
-- **🏥 Health Checks**: Built-in health monitoring and diagnostics
-- **⚙️ Configuration Management**: Centralized configuration with validation
-- **🧪 Testing Support**: Built-in test suite for validation
-- **🔍 LangSmith Monitoring**: Real-time flow monitoring and tracing
-- **📈 Performance Analytics**: Detailed performance metrics and analysis
+- **🤖 Intelligent Chatbot**: Powered by OpenAI GPT-4 with current date awareness
+- **🔍 Web Search Integration**: Real-time information retrieval using Tavily
+- **📊 LangSmith Monitoring**: Complete flow tracing and performance monitoring
+- **🔄 Conditional Flow**: LLM decides when to use tools vs direct responses
+- **💾 Checkpointing**: Conversation state persistence across sessions
+- **🌐 Web Interface**: Modern, responsive web UI built with Flask
+- **💻 Command Line**: Traditional interactive command-line interface
+- **📅 Current Date Awareness**: Always uses actual current date, not training date
 
-## 🏗️ Architecture
+## 🚀 Quick Start
 
-The chatbot is built with a modular architecture:
+### Prerequisites
 
-```
-basic_chatbot/
-├── chatbot.py              # Main entry point
-├── chatbot_core.py         # Core chatbot implementation
-├── config.py               # Configuration management
-├── graph_builder.py        # LangGraph construction
-├── visualization.py        # Graph visualization handling
-├── chat_interface.py       # User interface management
-├── state.py                # State definitions
-├── logger.py               # Logging system
-├── langsmith_integration.py # LangSmith monitoring
-├── monitor_flow.py         # Flow monitoring demo
-├── test_chatbot.py         # Test suite
-├── requirements.txt        # Python dependencies
-├── .env                    # Environment variables (not in git)
-├── .gitignore             # Git ignore rules
-└── README.md              # This file
-```
+- Python 3.8+
+- OpenAI API key
+- Tavily API key (optional, for web search)
+- LangSmith API key (optional, for monitoring)
 
-## 🚀 Setup
+### Installation
 
-1. **Clone the repository**:
+1. **Clone the repository**
    ```bash
-   git clone <your-repo-url>
+   git clone <repository-url>
    cd basic_chatbot
    ```
 
-2. **Install dependencies**:
+2. **Install dependencies**
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Set up your API keys**:
-   
-   Create a `.env` file in the project root:
+3. **Configure API keys**
    ```bash
+   # Create .env file
    echo "OPENAI_API_KEY=your-openai-api-key-here" > .env
    echo "TAVILY_API_KEY=your-tavily-api-key-here" >> .env
    echo "LANGSMITH_API_KEY=your-langsmith-api-key-here" >> .env
    ```
-   
-   Or set them as environment variables:
-   ```bash
-   export OPENAI_API_KEY="your-openai-api-key-here"
-   export TAVILY_API_KEY="your-tavily-api-key-here"
-   export LANGSMITH_API_KEY="your-langsmith-api-key-here"
-   ```
-
-   **Note**: You'll need these API keys:
-   - [OpenAI API key](https://platform.openai.com/api-keys) for GPT-4 access
-   - [Tavily API key](https://tavily.com/) for web search functionality
-   - [LangSmith API key](https://smith.langchain.com/) for monitoring and tracing
 
 ## 🎯 Usage
 
-### Basic Usage
+### Web Interface (Recommended)
 
-Run the chatbot:
+Start the web UI for a modern chat experience:
+
+```bash
+# Option 1: Use the launcher (recommended)
+python start_web_ui.py
+
+# Option 2: Direct start
+python web_ui.py
+```
+
+Then open your browser to: **http://localhost:5000**
+
+**Web UI Features:**
+- 🎨 Modern, responsive design
+- ⚡ Real-time chat interface
+- 📱 Mobile-friendly
+- 🔄 Typing indicators
+- ⏱️ Response time tracking
+- 🟢 Health status indicator
+
+### Command Line Interface
+
+For traditional terminal interaction:
+
 ```bash
 python chatbot.py
 ```
 
-The chatbot will:
-1. ✅ Load and validate configuration
-2. 🏥 Perform health checks
-3. 📊 Generate graph visualizations
-4. 🔗 Start LangSmith monitoring session
-5. 🤖 Start an interactive chat session
-6. 🔍 Automatically use web search when needed
+**CLI Features:**
+- 🔄 Interactive conversation
+- 📊 Health checks
+- 🖼️ Graph visualization generation
+- 📝 Session management
 
-### Flow Monitoring with LangSmith
+### API Endpoints
 
-Monitor the conversation flow in real-time:
-```bash
-python monitor_flow.py
+The web server provides REST API endpoints:
+
+- `GET /api/health` - Health check
+- `POST /api/chat` - Send chat message
+- `GET /` - Web interface
+
+## 🏗️ Architecture
+
+### Core Components
+
+```
+📁 Project Structure
+├── chatbot.py              # Main CLI entry point
+├── web_ui.py              # Flask web server
+├── chatbot_core.py        # Core chatbot logic
+├── graph_builder.py       # LangGraph construction
+├── config.py              # Configuration management
+├── state.py               # State definitions
+├── visualization.py       # Graph visualization
+├── chat_interface.py      # Chat interface logic
+├── logger.py              # Logging system
+├── langsmith_integration.py # LangSmith monitoring
+├── templates/
+│   └── chat.html          # Web UI template
+└── requirements.txt       # Dependencies
 ```
 
-This will:
-- Start a monitored session
-- Process test queries
-- Show LangSmith project URL
-- Demonstrate monitoring features
+### Flow Architecture
 
-### Testing
-
-Run the test suite to verify everything works:
-```bash
-python test_chatbot.py
+```
+START → chatbot → (conditional) → tools → chatbot → END
+                    ↓
+                  (end)
 ```
 
-### Interactive Commands
+**Conditional Flow:**
+- LLM decides when to use tools
+- Web search only when needed
+- Proper conversation termination
+- No infinite loops
 
-- Type your message and press Enter
-- Use `quit`, `exit`, or 'q' to end the session
-- Use `Ctrl+C` to interrupt the session
+### Monitoring & Observability
 
-### Graph Visualizations
-
-The chatbot generates visualizations in multiple formats:
-- `langgraph_visualization.png` - PNG image of the conversation graph
-- `langgraph_visualization.mmd` - Mermaid diagram code (view at [mermaid.live](https://mermaid.live/))
-- `langgraph_visualization.svg` - SVG vector format
-
-### Web Search Integration
-
-The chatbot now includes:
-- **Tavily Search**: Real-time web search capabilities
-- **Automatic Tool Usage**: The LLM decides when to use web search
-- **Enhanced Responses**: More accurate and up-to-date information
-
-## 🔍 LangSmith Monitoring
-
-LangSmith provides comprehensive monitoring and tracing:
-
-### Features
-- **🔍 Node Execution Tracking**: Monitor chatbot and tools node execution
-- **🛠️ Tool Usage Monitoring**: Track which tools are called and their results
-- **💬 Conversation Tracking**: Complete conversation history and analysis
-- **📊 Performance Analytics**: Execution time, success rates, and metrics
-- **🔗 Real-time Monitoring**: Live monitoring of conversation flows
-
-### Setup
-1. Get your LangSmith API key from [smith.langchain.com](https://smith.langchain.com/)
-2. Add it to your `.env` file: `LANGSMITH_API_KEY=your-key`
-3. Run the monitoring demo: `python monitor_flow.py`
-
-### What You Can Monitor
-- **Node Execution**: See exactly what happens in chatbot and tools nodes
-- **Input/Output**: Track all inputs and outputs for each step
-- **Tool Calls**: Monitor when and how tools are used
-- **Performance**: Track execution time and success rates
-- **Errors**: Debug issues with detailed error tracking
-- **Flow Visualization**: See the complete conversation flow
-
-### Accessing Monitoring Data
-- **Web Dashboard**: Visit your LangSmith project URL
-- **API Access**: Use LangSmith API for custom dashboards
-- **Export**: Export data for analysis
+- **LangSmith Integration**: Complete flow tracing
+- **Health Checks**: System diagnostics
+- **Performance Metrics**: Response time tracking
+- **Error Handling**: Graceful error recovery
 
 ## 🔧 Configuration
 
-The chatbot uses a centralized configuration system:
+### Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `OPENAI_API_KEY` | OpenAI API key | ✅ Yes |
+| `TAVILY_API_KEY` | Tavily search API key | ❌ No (disables web search) |
+| `LANGSMITH_API_KEY` | LangSmith API key | ❌ No (disables monitoring) |
+
+### Configuration Options
 
 ```python
-from config import ChatbotConfig
-
-# Load from environment
-config = ChatbotConfig.from_env()
-
-# Customize settings
-config.max_conversation_turns = 100
-config.enable_web_search = True
-config.enable_langsmith = True
-config.langsmith_project = "my-chatbot-project"
+# config.py
+model_name: str = "gpt-4"              # OpenAI model
+max_search_results: int = 3            # Web search results
+enable_web_search: bool = True         # Enable/disable web search
+enable_langsmith: bool = True          # Enable/disable monitoring
 ```
 
-## 📊 Logging
+## 📊 Monitoring
 
-Built-in logging system for monitoring and debugging:
+### LangSmith Dashboard
 
-```python
-from logger import get_logger
+Access your monitoring dashboard at: **https://smith.langchain.com**
 
-logger = get_logger("MyModule")
-logger.info("Operation completed successfully")
-logger.error("Something went wrong")
-```
+**Features:**
+- 🔍 Node execution tracking
+- 🛠️ Tool usage monitoring
+- 💬 Conversation history
+- 📈 Performance metrics
+- 🐛 Error debugging
 
-## 🏥 Health Monitoring
+### Health Checks
 
-Built-in health checks for system monitoring:
+```bash
+# CLI health check
+python -c "from chatbot_core import LangGraphChatbot; print(LangGraphChatbot().health_check())"
 
-```python
-health = chatbot.health_check()
-print(f"Status: {health['status']}")
-print(f"LangSmith Enabled: {health['langsmith_enabled']}")
-print(f"Errors: {health['errors']}")
+# Web API health check
+curl http://localhost:5000/api/health
 ```
 
 ## 🧪 Testing
 
-Comprehensive test suite included:
+### Quick Tests
 
 ```bash
-# Run all tests
-python test_chatbot.py
+# Test current date awareness
+python -c "from chatbot_core import LangGraphChatbot; chatbot = LangGraphChatbot(); chatbot.stream_response('What is today\'s date?')"
 
-# Test specific components
-python -c "from test_chatbot import test_configuration; test_configuration()"
+# Test web search
+python -c "from chatbot_core import LangGraphChatbot; chatbot = LangGraphChatbot(); chatbot.stream_response('What is the latest news about AI?')"
+
+# Test conversation continuity
+python monitor_flow.py
 ```
 
-## 🔒 Security Notes
+## 🔍 Troubleshooting
 
-- **Never commit your `.env` file** - it's already in `.gitignore`
-- **Keep your API keys secure** - don't share them publicly
-- **Use environment variables** in production environments
-- **Validate configuration** before running
+### Common Issues
 
-## 📦 Dependencies
+1. **Import Errors**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-- `langchain` - LangChain framework for LLM interactions
-- `langgraph` - LangGraph for conversation flow management
-- `openai` - OpenAI API client
-- `python-dotenv` - Environment variable loading
-- `graphviz` - Graph visualization (optional, for PNG generation)
-- `langchain_tavily` - Tavily search integration
-- `tavily-python` - Tavily API client
-- `langsmith` - LangSmith monitoring and tracing
+2. **API Key Issues**
+   ```bash
+   # Check .env file
+   cat .env
+   ```
 
-## 🚨 Troubleshooting
+3. **Port Already in Use**
+   ```bash
+   # Change port in web_ui.py
+   app.run(port=5001)
+   ```
 
-### "python-dotenv not installed"
+4. **LangSmith 403 Errors**
+   - Use placeholder key for testing
+   - Get real key from LangSmith dashboard
+
+### Debug Mode
+
 ```bash
-pip install python-dotenv
+# Enable debug logging
+export LOG_LEVEL=DEBUG
+python chatbot.py
 ```
 
-### "OpenAI API key not found"
-- Check that your `.env` file exists and contains `OPENAI_API_KEY=your-key`
-- Or set the environment variable manually
+## 🚀 Advanced Usage
 
-### "Tavily API key not found"
-- Check that your `.env` file contains `TAVILY_API_KEY=your-key`
-- Get a free API key from [tavily.com](https://tavily.com/)
-
-### "LangSmith API key not found"
-- Check that your `.env` file contains `LANGSMITH_API_KEY=your-key`
-- Get a free API key from [smith.langchain.com](https://smith.langchain.com/)
-
-### Graph visualization errors
-- Install Graphviz: `brew install graphviz` (macOS) or `apt-get install graphviz` (Ubuntu)
-- The chatbot will still work without visualization support
-
-### Module import errors
-- Ensure all dependencies are installed: `pip install -r requirements.txt`
-- Check that all Python files are in the same directory
-
-## 🎨 Customization
-
-The modular architecture makes it easy to customize:
+### Custom Graph Modifications
 
 ```python
-# Custom chat interface
-from chat_interface import ChatInterface
-
-class MyChatInterface(ChatInterface):
-    def _get_default_welcome(self):
-        return "Welcome to my custom chatbot!"
-
-# Custom visualization formats
-from visualization import GraphVisualizer
-
-visualizer = GraphVisualizer(formats=["png", "svg"])
-
-# Custom monitoring
-from langsmith_integration import LangSmithMonitor
-
-monitor = LangSmithMonitor(config)
-monitor.log_custom_event("my_event", {"data": "value"})
+# Modify graph_builder.py
+def _construct_graph(self):
+    # Add custom nodes
+    # Modify flow logic
+    pass
 ```
 
-## 📈 Performance
+### Adding New Tools
 
-- **Lazy Loading**: Components are initialized only when needed
-- **Error Recovery**: Graceful fallbacks when components fail
-- **Resource Management**: Automatic cleanup of old visualizations
-- **Health Monitoring**: Continuous system health checks
-- **Performance Tracking**: Detailed metrics via LangSmith
+```python
+# In graph_builder.py
+def _init_tools(self):
+    # Add custom tools
+    custom_tool = Tool(
+        name="custom_tool",
+        description="Custom tool description",
+        func=custom_function
+    )
+    self.tools.append(custom_tool)
+```
+
+### Custom Monitoring
+
+```python
+# In langsmith_integration.py
+def log_custom_event(self, event_type, data):
+    # Add custom monitoring
+    pass
+```
 
 ## 🤝 Contributing
 
-The modular structure makes it easy to contribute:
-
-1. **Add new modules** in separate files
-2. **Extend existing classes** through inheritance
-3. **Add new visualization formats** in `visualization.py`
-4. **Create new chat interfaces** in `chat_interface.py`
-5. **Add monitoring features** in `langsmith_integration.py`
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests
+5. Submit a pull request
 
 ## 📄 License
 
-This project is for educational purposes. Please respect OpenAI's, Tavily's, and LangSmith's terms of service.
+This project is licensed under the MIT License.
 
 ## 🔮 Future Enhancements
 
-- **Web Interface**: Add Flask/FastAPI web server
-- **Database Integration**: Store conversation history
-- **Multi-modal Support**: Image and audio processing
-- **Plugin System**: Extensible tool architecture
-- **Advanced Monitoring**: Custom dashboards and alerts
-- **A/B Testing**: Compare different conversation flows
+- [ ] Multi-user support
+- [ ] Conversation export
+- [ ] Custom tool integration
+- [ ] Advanced analytics dashboard
+- [ ] Mobile app
+- [ ] Voice interface
+- [ ] Multi-language support
+
+---
+
+**Built with ❤️ using LangGraph, OpenAI, and Flask**
